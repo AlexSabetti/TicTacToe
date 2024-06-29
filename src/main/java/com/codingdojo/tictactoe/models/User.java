@@ -1,14 +1,21 @@
 package com.codingdojo.tictactoe.models;
 
+import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
@@ -38,6 +45,25 @@ public class User {
     @NotEmpty(message="Confirm Password is required!")
     @Size(min=8, max=128, message="Confirm Password must be between 8 and 128 characters")
     private String confirm;
+    
+    @Column(updatable=false)
+    private Date createdAt;
+    private Date updatedAt;
+    
+    @OneToMany(mappedBy="creator", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+    private List<Game> createdGames;
+    
+    @ManyToMany(fetch =FetchType.EAGER)
+    @JoinTable(
+    	name = "users_roles",
+    	joinColumns = @JoinColumn(name = "user_id"),
+    	inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private List<Role> roles;
+    
+    @OneToMany(mappedBy="user", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+    private List<Highscore> highscores;
+    
     
     @OneToMany(mappedBy="challenger", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
     private List<Match> challengerMatches;
@@ -139,5 +165,46 @@ public class User {
 	public void updateLosses() {
 		this.losses += 1;
 	}
+	
+	@PrePersist
+	protected void onCreate()
+	{
+		this.createdAt = new Date();
+		this.wins = 0;
+		this.losses = 0;
+	}
+	
+	@PreUpdate
+	protected void onUpdate()
+	{
+		this.updatedAt = new Date();
+	}
+
+	public List<Game> getCreatedGames() {
+		return createdGames;
+	}
+
+	public void setCreatedGames(List<Game> createdGames) {
+		this.createdGames = createdGames;
+	}
+
+	public List<Highscore> getHighscores() {
+		return highscores;
+	}
+
+	public void setHighscores(List<Highscore> highscores) {
+		this.highscores = highscores;
+	}
+
+	public List<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
+	}
+	
+	
     
+	
 }

@@ -40,7 +40,7 @@ public class Match {
 	
 	private Integer turnCounter;
 	
-	private Boolean turn;
+	private Long  turn;
 	
 	private Integer info; 
 	
@@ -55,9 +55,7 @@ public class Match {
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date updatedAt;
 	
-	public Match() {
-		info = 222222222; //2's represent unused spaces, should be nine in total at the start 
-	}
+	public Match() {}
 	
 	public Match(User challenger, Game game, Integer info) {
 		this.game = game;
@@ -125,22 +123,27 @@ public class Match {
 		this.turnCounter += 1;
 	}
 
-	public Boolean getTurn() {
+	public Long getTurn() {
 		return turn;
 	}
 
-	public void setTurn(Boolean turn) {
+	public void setTurn(Long turn) {
 		this.turn = turn;
 	}
 	
-	public void updateTurn(Boolean turn) {
-		this.turn = !turn;
+	public void updateTurn(Long turn) {
+		if(this.getChallengee().getId() == turn) {
+			this.turn = this.getChallenger().getId();
+		} else {
+			this.turn = this.getChallengee().getId();
+		}
 	}
 
 	@PrePersist
 	protected void onCreate()
 	{
 		this.createdAt = new Date();
+		this.turn = (long) -1;
 	}
 	
 	@PreUpdate
@@ -148,5 +151,28 @@ public class Match {
 	{
 		this.updatedAt = new Date();
 	}
+
+	public Date getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+	
+	public void randomizeTurn(Long challengerId, Long challengeeId) {
+		int rand = (int) (Math.random() * 101);
+		if(rand > 50) {
+			this.turn = challengerId;
+		} else {
+			this.turn = challengeeId;
+		}
+	}
+	
+	
 	
 }

@@ -8,14 +8,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 
+import com.codingdojo.tictactoe.models.Game;
 import com.codingdojo.tictactoe.models.LoginUser;
 import com.codingdojo.tictactoe.models.User;
+import com.codingdojo.tictactoe.repositories.GameRepository;
+import com.codingdojo.tictactoe.repositories.RoleRepository;
 import com.codingdojo.tictactoe.repositories.UserRepository;
 
 @Service
 public class UserService {
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private RoleRepository roleRepository;
+	
+	//Alright, this next part is going to be a bit weird, but trust me on this
+	@Autowired GameRepository gameRepository;
 	
 	public List<User> findUsers(){
 		return userRepository.findAll();
@@ -39,6 +47,18 @@ public class UserService {
 		if(valid) {
 			String hashed = BCrypt.hashpw(newUser.getPassword(), BCrypt.gensalt());
 			newUser.setPassword(hashed);
+			User user;
+			//Subject to change, first account that is registered in an empty database will become the administrator
+			if(userRepository.findAll().size() == 0) { //This should be changed later because having to rely on both finding and then measuring the size of an ever increasing list of users is not very smart
+				newUser.setRoles(roleRepository.findByName("ROLE_ADMIN"));
+				user = userRepository.save(newUser);
+				Game game = new Game("A game of X's and O's", "Tic-Tac-Toe", user);
+				gameRepository.save(game);
+			} else {
+				newUser.setRoles(roleRepository.findByName("ROLE_USER"));
+				user = userRepository.save(newUser);
+			}
+			
 			return userRepository.save(newUser);
 		}else {
 			return null;
@@ -71,6 +91,30 @@ public class UserService {
 			return user.get();
 		} else {
 			return null;
+		}
+	}
+	
+	public List<User> findByRole(String roleName){
+		return userRepository.findByRoles(roleRepository.findByName(roleName));
+	}
+	
+	public User updateUser(User user) {
+		return userRepository.save(user);
+	}
+	
+	public void updateUserWins(Long id) {
+		Optional<User> user = userRepository.findById(id);
+		if(user.isPresent()) {
+			User ptUser = user.get();
+			userRepository.updateWins(ptUser.getWins() + 1, id);
+		}
+	}
+	
+	public void updateUserLosses(Long id) {
+		Optional<User> user = userRepository.findById(id);
+		if(user.isPresent()) {
+			User ptUser = user.get();
+			userRepository.updateLosses(ptUser.getLosses() + 1, id);
 		}
 	}
 }

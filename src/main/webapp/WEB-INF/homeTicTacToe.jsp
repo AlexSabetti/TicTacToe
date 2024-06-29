@@ -17,18 +17,43 @@
 <meta charset="ISO-8859-1">
 <title><c:out value="${game.name}"/></title>
 </head>
-<body>
-	<div class="container-lg border border-black" style="display:flex; background-color:lightgrey">
-		<div class="col container-md text-center" style="display:flex; flex-direction:column">
-			<h1 style="text-style:italic"><c:out value="${game.name}"/></h1>
-			<br> <br> <br>
-			<div style="background-color:beige; display:flex; flex-direction:column" class="container-sm">
-				<h2 class="text-center">Open Matches</h2>
-				<table class="align-text-center">
+<body class="p-3 m-0">
+	<div class="container">
+		<nav class="navbar navbar-dark fixed-top bg-dark">
+			<div class="container-fluid">
+				<a class="navbar-brand" href="/games/${game.id}/home"><c:out value="${game.name}"/></a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
+					<div class="offcanvas-header">
+						<h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Game Website Trademarked</h5>
+						<button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+					</div>
+					<div class="offcanvas-body">
+						<ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+							<li class="nav-item">
+								<a class="nav-link active" aria-current="page" href="/games">Games</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link active" aria-current="page" href="/games/${game.id}/discussions">Discussions</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</nav>
+	</div>
+	<br> <br>
+	<div class="container-fluid border border-black py-3 px-0 bg-dark">
+		<div class="col container-fluid text-center m-0">
+			<div style="background-color:beige;">
+				<h3 class="text-center">Open Matches</h3>
+				<table class="container-sm">
 					<thead>
 						<tr>
-							<th scope="col" class="text-center">Challenger</th>
-							<th scope="col" class="text-center">Challenger's Wins</th>
+							<th scope="col" class="text-start">Challenger</th>
+							<th scope="col" class="text-start">Challenger's Wins</th>
 							<th scope="col" class="text-center">Join?</th>
 						</tr>
 					</thead>
@@ -45,36 +70,46 @@
 					</tbody>
 				</table>
 			</div>
-			<br> <br> <br>
-			<div>
-			
-			</div>
-			<br><br><br>
-			<div style="background-color:beige" class="container-sm text-center">
+			<br>
+			<div style="background-color:beige">
 				<h2 class="text-center">Your Matches</h2>
-				<table class="align-center">
+				<table class="container-sm">
 					<thead>
 						<tr>
 							<th scope="col" class="text-center">Other Player</th>
 							<th scope="col" class="text-center">Turn Counter</th>
+							<th scope="col" class="text-center">Started:</th>
 							<th scope="col" class="text-center">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach var="match" items="${matches}">
-							<c:if test="${match.challengee.id == user.id || match.challenger.id == user.id && match.challengee != null}">
+							<c:if test="${match.challengee.id == user.id || match.challenger.id == user.id}">
 								<tr>
 									<c:if test="${match.challenger.id == user.id}">
-									
-										<td class="text-center">${match.challengee.userName}</td>
+										<c:if test="${match.challengee == null}">
+											<td class="text-center">N/A</td>
+											<td class="text-center">N/A</td>
+										</c:if>
+										<c:if test="${match.challengee != null}">
+											<td class="text-center">${match.challengee.userName}</td>
+											<td class="text-center">${match.turnCounter}</td>
+										</c:if>
 									</c:if>
 									<c:if test="${match.challengee.id == user.id}">
 										<td class="text-center">${match.challenger.userName}</td>
+										<td class="text-center">${match.turnCounter}</td>
 									</c:if>
-									<td class="text-center">${match.turnCounter}</td>
-									<td class="text-center"><a href="/games/${match.game.id}/home/matches/${match.id}">View</a>
+									<td><c:out value="${match.createdAt}"/></td>
+									<c:if test="${match.challengee == null}">
+										<td class="text-center"><span><a href="/games/${match.game.id}/home/matches/${match.id}/delete">Cancel</a> | <a href="/games/${match.game.id}/home/matches/${match.id}?userId=${user.id}">View</a></span>
+									</c:if>
+									<c:if test="${match.challengee != null}">
+										<td class="text-center"><span><a href="/games/${match.game.id}/home/matches/${match.id}/forfeit">Forfeit</a> | <a href="/games/${match.game.id}/home/matches/${match.id}?userId=${user.id}">View</a></span>
+									</c:if>
+									
 								</tr>
-							</c:if>
+							</c:if>  
 						</c:forEach>
 					</tbody>
 				</table>

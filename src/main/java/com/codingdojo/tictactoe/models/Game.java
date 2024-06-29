@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,8 +13,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -35,13 +36,16 @@ public class Game {
 	@Size(min=5, max=60, message="Game name must be between 5 and 60 characters")
 	private String name;
 	
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="user_id")
-	private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="creator_id")
+	private User creator;
 	
 	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name="match_id")
 	private List<Match> matches;
+	
+	@OneToMany(mappedBy="game", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	List<Highscore> highscores;
 	
 	@Column(updatable=false)
 	@DateTimeFormat(pattern="yyyy-MM-dd")
@@ -52,10 +56,10 @@ public class Game {
 	
 	public Game() {}
 	
-	public Game(String description, String name, User user) {
+	public Game(String description, String name, User creator) {
 		this.description = description;
 		this.name = name;
-		this.user = user;
+		this.creator = creator;
 	}
 	
 	@PrePersist
@@ -94,12 +98,12 @@ public class Game {
 		this.name = name;
 	}
 
-	public User getUser() {
-		return user;
+	public User getCreator() {
+		return creator;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
+	public void setCreator(User creator) {
+		this.creator = creator;
 	}
 
 	public List<Match> getMatches() {
@@ -109,5 +113,14 @@ public class Game {
 	public void setMatches(List<Match> matches) {
 		this.matches = matches;
 	}
+
+	public List<Highscore> getHighscores() {
+		return highscores;
+	}
+
+	public void setHighscores(List<Highscore> highscores) {
+		this.highscores = highscores;
+	}
+	
 	
 }

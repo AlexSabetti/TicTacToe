@@ -39,7 +39,7 @@ public class MatchService {
 		matchRepository.deleteById(id);
 	}
 	
-	public Match progressTurn(Match match) {
+	/*public Match progressTurn(Match match) {
 		match.updateTurnCounter();
 		boolean didWin = checkMatchStatus(match);
 		if(didWin == true) {
@@ -115,7 +115,7 @@ public class MatchService {
 		}
 		
 		return matchDecided;
-	}
+	}*/
 	
 	public List<Match> allUnfilledMatches(){
 		return matchRepository.findAllUnfilledMatches();

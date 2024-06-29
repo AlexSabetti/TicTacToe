@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import com.codingdojo.tictactoe.models.Match;
+import com.codingdojo.tictactoe.classes.TicTacToeGameboard;
 import com.codingdojo.tictactoe.models.Game;
 import com.codingdojo.tictactoe.models.LoginUser;
+import com.codingdojo.tictactoe.models.Match;
 import com.codingdojo.tictactoe.models.User;
+import com.codingdojo.tictactoe.services.GameService;
 import com.codingdojo.tictactoe.services.MatchService;
 import com.codingdojo.tictactoe.services.UserService;
-import com.codingdojo.tictactoe.services.GameService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -38,9 +39,14 @@ public class HomeController {
 	
 	@GetMapping("/")
 	public String index(Model model) {
-		model.addAttribute("newUser", new User());
 		model.addAttribute("newLogin", new LoginUser());
 		return "index.jsp";
+	}
+	
+	@GetMapping("/register")
+	public String indexReg(Model model) {
+		model.addAttribute("newUser", new User());
+		return "registrationpage.jsp";
 	}
 	
 	@PostMapping("/register")
@@ -48,8 +54,7 @@ public class HomeController {
 		userService.register(newUser, result);
 		
 		if(result.hasErrors()) {
-			model.addAttribute("newLogin", new LoginUser());
-			return "index.jsp";
+			return "registrationpage.jsp";
 		}
 		
 		session.setAttribute("currentuser", newUser.getId());
@@ -60,7 +65,6 @@ public class HomeController {
 	public String login(@Valid @ModelAttribute("newLogin") LoginUser newLogin, BindingResult result, Model model) {
 		User user = userService.login(newLogin, result);
 		if(result.hasErrors()) {
-			model.addAttribute("newUser", new User());
 			return "index.jsp";
 		}
 		session.setAttribute("currentuser", user.getId());
@@ -107,7 +111,8 @@ public class HomeController {
 			model.addAttribute("game", game);
 			model.addAttribute("matches", matchService.allGameSpecificMatches(gameId));
 			model.addAttribute("user", userService.findUserById((long) session.getAttribute("currentuser")));
-			String specificGameHomePath = "home" + game.getName() + ".jsp";
+			String whittled = game.getName().replace("-", "");
+			String specificGameHomePath = "home" + whittled + ".jsp";
 			return specificGameHomePath;
 		}
 	}
@@ -125,7 +130,7 @@ public class HomeController {
 			} else {
 				newMatch.setChallenger(userService.findUserById((long) session.getAttribute("currentuser")));
 				newMatch.setGame(gameService.findGame(id));
-				newMatch.setInfo(222222222);
+				newMatch.setInfo(000000000);
 				matchService.createMatch(newMatch);
 				String toPath = "redirect:/games/" + id + "/home";
 				return toPath;
@@ -144,9 +149,55 @@ public class HomeController {
 			} else {
 				match.setChallengee(userService.findUserById((long) session.getAttribute("currentuser")));
 				match.setId(matchId);
+				match.randomizeTurn(match.getChallenger().getId(), match.getChallengee().getId());
 				matchService.updateMatch(match);
 				return "redirect:/games/" + gameId + "/home";
 			}
+		}
+	}
+	
+	@GetMapping("/games/{gameId}/home/matches/{matchId}/delete")
+	public String deleteMatch(@PathVariable("gameId") Long gameId, @PathVariable("matchId") Long matchId, Model model) {
+		if(session.getAttribute("currentuser")== null) {
+			return "redirect:/";
+		}else {
+			if(matchService.findMatch(matchId).getChallenger().getId() != (long) session.getAttribute("currentuser")) {
+				return "redirect:/games/"+ gameId + "/home";
+			}
+			matchService.deleteMatch(matchId);
+			return "redirect:/games/"+ gameId + "/home";
+		}
+	}
+	
+	@GetMapping("/games/{gameId}/home/matches/{matchId}/forfeit")
+	public String forfeitMatch(@PathVariable("gameId") Long gameId, @PathVariable("matchId") Long matchId, Model model) {
+		if(session.getAttribute("currentuser")== null) {
+			return "redirect:/";
+		}else {
+			if(matchService.findMatch(matchId).getChallenger().getId() != (long) session.getAttribute("currentuser") && matchService.findMatch(matchId).getChallengee().getId() != (long) session.getAttribute("currentuser")) {
+				return "redirect:/games/"+ gameId + "/home";
+			}
+			matchService.deleteMatch(matchId);
+			return "redirect:/games/"+ gameId + "/home";
+		}
+	}
+	
+	@GetMapping("/games/{gameId}/home/matches/{matchId}")
+	public String viewMatch(@PathVariable("gameId") Long gameId, @PathVariable("matchId") Long matchId, Model model) {
+		if(session.getAttribute("currentuser")== null) {
+			return "redirect:/";
+		}else {
+			Match match = matchService.findMatch(matchId);
+			if(match.getChallenger().getId() != (long) session.getAttribute("currentuser") && match.getChallengee().getId() != (long) session.getAttribute("currentuser")) {
+				return "redirect:/games/" + gameId + "/home";
+			}
+			
+			TicTacToeGameboard currentGame = new TicTacToeGameboard(match.getInfo());
+			User currentUser = userService.findUserById((long) session.getAttribute("currentuser"));
+			model.addAttribute("gameboard", currentGame);
+			model.addAttribute("user", currentUser);
+			model.addAttribute("match", match);
+			return "tictactoematch.jsp";
 		}
 	}
 	
