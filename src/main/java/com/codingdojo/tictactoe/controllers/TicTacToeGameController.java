@@ -39,15 +39,15 @@ public class TicTacToeGameController {
 		int condition = board.checkGameCondition();
 		if(condition == 0) {
 			if(moveRequest.getUserId() == player_B.getId()) {
-				userService.updateUserWins(player_A.getId());
-				//userService.updateUserLosses(player_A.getId());
-				player_A.updateWins();
-				//player_B.updateLosses();
-			} else {
-				//player_A.updateLosses();
+				userService.updateUserWins(player_B.getId());
 				userService.updateUserLosses(player_A.getId());
 				//player_B.updateWins();
-				userService.updateUserWins(player_B.getId());
+				//player_A.updateLosses();
+			} else {
+				//player_A.updateLosses();
+				userService.updateUserLosses(player_B.getId());
+				//player_B.updateWins();
+				userService.updateUserWins(player_A.getId());
 			}
 			
 			matchService.deleteMatch(moveRequest.getGameId());
@@ -60,6 +60,7 @@ public class TicTacToeGameController {
 			} 
 			
 			match.setInfo(board.convertToNotation());
+			match.updateTurnCounter();
 			matchService.updateMatch(match);
 		} else {
 			//We've hit a draw, no score updates
@@ -76,10 +77,9 @@ public class TicTacToeGameController {
 		return ResponseEntity.ok(board.getSimpleCol());
 	}
 	
-	@GetMapping("/api/{matchId}/exit")
-	public String requestLeave(@PathVariable("matchId") Long matchId) {
-		Match match = matchService.findMatch(matchId);
-		return "redirect:/games/" + match.getGame().getId() + "/home";
+	@GetMapping("/api/{gameId}/exit")
+	public String requestLeave(@PathVariable("gameId") Long gameId) {
+		return "redirect:/games/" + gameId + "/home";
 	}
 	
 	@GetMapping("/api/{matchId}/refresh")

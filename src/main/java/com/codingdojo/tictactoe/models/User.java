@@ -41,10 +41,10 @@ public class User {
     @Size(min=8, max=128, message="Password must be between 8 and 128 characters")
     private String password;
     
-    @Transient
+    /*@Transient
     @NotEmpty(message="Confirm Password is required!")
     @Size(min=8, max=128, message="Confirm Password must be between 8 and 128 characters")
-    private String confirm;
+    private String confirm;*/
     
     @Column(updatable=false)
     private Date createdAt;
@@ -78,11 +78,11 @@ public class User {
   
     public User() {}
     
-    public User(String userName, String email, String password, String confirm) {
+    public User(String userName, String email, String password/*, String confirm*/) {
     	this.userName = userName;
     	this.email = email;
     	this.password = password; //Come back to this, probably
-    	this.confirm = confirm;
+    	//this.confirm = confirm;
     }
 
 	public Long getId() {
@@ -117,13 +117,13 @@ public class User {
 		this.password = password;
 	}
 
-	public String getConfirm() {
+	/*public String getConfirm() {
 		return confirm;
 	}
 
 	public void setConfirm(String confirm) {
 		this.confirm = confirm;
-	}
+	}*/
 
 	
 	public List<Match> getChallengerMatches() {
@@ -208,3 +208,4 @@ public class User {
     
 	
 }
+

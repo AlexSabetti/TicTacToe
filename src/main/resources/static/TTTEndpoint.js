@@ -23,8 +23,9 @@ function handleCellClicked(id){
 			else if(payload[1] == 2){
 				clickedCell.textContent = 'O';
 			}
+			forceRefresh();
 		}
-		forceRefresh();
+		
 		
 	 })
 }
@@ -53,10 +54,9 @@ refreshBoard();
 
 function exit(){
 	const url = window.location.pathname.split("/");
-	fetch(`/api/${url[5]}/exit`);
+	fetch(`/api/${url[3]}/exit`);
 }
 
 function forceRefresh(){
-	const url = window.location.pathname.split("/");
-	fetch(`/api/${url[5]}/refresh`);
+	window.location.reload(true);
 }

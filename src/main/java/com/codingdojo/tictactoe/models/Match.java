@@ -144,6 +144,7 @@ public class Match {
 	{
 		this.createdAt = new Date();
 		this.turn = (long) -1;
+		this.turnCounter = 0;
 	}
 	
 	@PreUpdate

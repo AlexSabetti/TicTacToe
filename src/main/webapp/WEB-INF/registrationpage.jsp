@@ -25,7 +25,7 @@
 	</div>
 	<div class="col">
 			<h1>Register</h1>
-			<form:form action="/register" method="post" modelAttribute="newUser">
+			<form:form action="/register" method="post" modelAttribute="newRegister">
 				<div>
 					<form:label path="userName">User Name</form:label>
 					<div>

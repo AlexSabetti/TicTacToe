@@ -33,10 +33,17 @@
 					<div class="offcanvas-body">
 						<ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
 							<li class="nav-item">
-								<a class="nav-link active" aria-current="page" href="/games">Games</a>
+								<a class="nav-link active" aria-current="page" href="/games">- Games</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link active" aria-current="page" href="/games/${game.id}/discussions">Discussions</a>
+								<a class="nav-link active" aria-current="page" href="/games/${game.id}/discussions">- Discussions</a>
+							</li>
+						</ul>
+					</div>
+					<div class="offcanvas-footer">
+						<ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+							<li class="nav-item">
+								<a class="nav-link active text-center" aria-current="page" href="/logout">Logout</a>
 							</li>
 						</ul>
 					</div>
@@ -47,20 +54,20 @@
 	<br> <br>
 	<div class="container-fluid border border-black py-3 px-0 bg-dark">
 		<div class="col container-fluid text-center m-0">
-			<div style="background-color:beige;">
+			<div style="background-color:beige;" class="p-2">
 				<h3 class="text-center">Open Matches</h3>
 				<table class="container-sm">
 					<thead>
 						<tr>
-							<th scope="col" class="text-start">Challenger</th>
-							<th scope="col" class="text-start">Challenger's Wins</th>
+							<th scope="col" class="text-center">Challenger</th>
+							<th scope="col" class="text-center">Challenger's Wins</th>
 							<th scope="col" class="text-center">Join?</th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach var="match" items="${matches}">
 							<c:if test="${match.challengee == null && match.challenger.id != user.id}">
-								<tr>
+								<tr class="border-top border-black">
 									<td class="text-center">${match.challenger.userName}</td>
 									<td class="text-center">${match.challenger.wins}</td>
 									<td class="text-center"><a href="/games/${match.game.id}/home/matches/${match.id}/join">Yes</a>
@@ -71,7 +78,7 @@
 				</table>
 			</div>
 			<br>
-			<div style="background-color:beige">
+			<div style="background-color:beige" class="p-2">
 				<h2 class="text-center">Your Matches</h2>
 				<table class="container-sm">
 					<thead>
@@ -85,7 +92,7 @@
 					<tbody>
 						<c:forEach var="match" items="${matches}">
 							<c:if test="${match.challengee.id == user.id || match.challenger.id == user.id}">
-								<tr>
+								<tr class="border-top border-black">
 									<c:if test="${match.challenger.id == user.id}">
 										<c:if test="${match.challengee == null}">
 											<td class="text-center">N/A</td>
@@ -114,11 +121,32 @@
 					</tbody>
 				</table>
 			</div>
-			<br> <br> <br>
-			<div style="background-color:beige" class="container-sm text-center">
+			<br> <br>
+			<div style="background-color:beige; border-radius:20px" class="text-center border border-black p-2">
 				<form:form action="/games/${game.id}/home/matches/new" method="post" modelAttribute="newMatch">
 					<input type="submit" value="Start a Match"/>
 				</form:form>
+			</div>
+			<br>
+			<div style="background-color:beige" class="p-2">
+				<h2 class="text-center">Leaderboard</h2>
+				<table class="table striped">
+					<thead>
+						<tr>
+							<th scope="col" class="text-center">Name</th>
+							<th scope="col" class="text-center">Wins</th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach var="player" items="${userList}">
+							<tr>
+								<td class="text-center"><a href="/profile/${player.id}"><c:out value="${player.userName}"/></a></td>
+								<td class="text-center"><c:out value="${player.wins}"/></td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				
+				</table>
 			</div>
 		</div>
 	</div>

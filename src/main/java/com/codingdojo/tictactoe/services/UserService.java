@@ -10,10 +10,13 @@ import org.springframework.validation.BindingResult;
 
 import com.codingdojo.tictactoe.models.Game;
 import com.codingdojo.tictactoe.models.LoginUser;
+import com.codingdojo.tictactoe.models.RegisterUser;
 import com.codingdojo.tictactoe.models.User;
 import com.codingdojo.tictactoe.repositories.GameRepository;
 import com.codingdojo.tictactoe.repositories.RoleRepository;
 import com.codingdojo.tictactoe.repositories.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -29,37 +32,36 @@ public class UserService {
 		return userRepository.findAll();
 	}
 	
-	public User register(User newUser, BindingResult result) {
+	public User register(RegisterUser newRegisterObject, BindingResult result) {
 		Boolean valid = true;
 		
-		Optional<User> potentialUser = userRepository.findByEmail(newUser.getEmail());
+		Optional<User> potentialUser = userRepository.findByEmail(newRegisterObject.getEmail());
 		if(potentialUser.isPresent()) {
 			result.rejectValue("email", "Matches", "This email already has an account attached to it.");
 			valid = false;
 		}
 		
-		if(!newUser.getPassword().equals(newUser.getConfirm())) {
+		if(!newRegisterObject.getPassword().equals(newRegisterObject.getConfirm())) {
 			result.rejectValue("confirm", "Matches", "The confirming password must match the password.");
 			valid = false;
 		}
 		if (result.hasErrors()) valid = false;
 		
 		if(valid) {
-			String hashed = BCrypt.hashpw(newUser.getPassword(), BCrypt.gensalt());
-			newUser.setPassword(hashed);
-			User user;
+			String hashed = BCrypt.hashpw(newRegisterObject.getPassword(), BCrypt.gensalt());
+			User user = new User(newRegisterObject.getUserName(), newRegisterObject.getEmail(), hashed);
 			//Subject to change, first account that is registered in an empty database will become the administrator
 			if(userRepository.findAll().size() == 0) { //This should be changed later because having to rely on both finding and then measuring the size of an ever increasing list of users is not very smart
-				newUser.setRoles(roleRepository.findByName("ROLE_ADMIN"));
-				user = userRepository.save(newUser);
+				user.setRoles(roleRepository.findByName("ROLE_ADMIN"));
+				user = userRepository.save(user);
 				Game game = new Game("A game of X's and O's", "Tic-Tac-Toe", user);
 				gameRepository.save(game);
 			} else {
-				newUser.setRoles(roleRepository.findByName("ROLE_USER"));
-				user = userRepository.save(newUser);
+				user.setRoles(roleRepository.findByName("ROLE_USER"));
+				user = userRepository.save(user);
 			}
 			
-			return userRepository.save(newUser);
+			return userRepository.save(user);
 		}else {
 			return null;
 		}	
@@ -102,6 +104,7 @@ public class UserService {
 		return userRepository.save(user);
 	}
 	
+	@Transactional
 	public void updateUserWins(Long id) {
 		Optional<User> user = userRepository.findById(id);
 		if(user.isPresent()) {
@@ -110,11 +113,16 @@ public class UserService {
 		}
 	}
 	
+	@Transactional
 	public void updateUserLosses(Long id) {
 		Optional<User> user = userRepository.findById(id);
 		if(user.isPresent()) {
 			User ptUser = user.get();
 			userRepository.updateLosses(ptUser.getLosses() + 1, id);
 		}
+	}
+	
+	public List<User> getLeaderBoard(){
+		return userRepository.getAllUsersSortedByScore();
 	}
 }

@@ -34,10 +34,17 @@
 					<div class="offcanvas-body">
 						<ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
 							<li class="nav-item">
-								<a class="nav-link active" aria-current="page" href="/games">Games</a>
+								<a class="nav-link active" aria-current="page" href="/games">- Games</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link active" aria-current="page" href="/games/${game.id}/discussions">Discussions</a>
+								<a class="nav-link active" aria-current="page" href="/games/${game.id}/discussions">- Discussions</a>
+							</li>
+						</ul>
+					</div>
+					<div class="offcanvas-footer">
+						<ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+							<li class="nav-item">
+								<a class="nav-link active text-center" aria-current="page" href="/logout">Logout</a>
 							</li>
 						</ul>
 					</div>
@@ -50,30 +57,32 @@
 		<div class="container-fluid" style="background-color:beige">
 			<table class="table text-center">
 				<tbody>
-					<tr>
-						<td onClick="handleCellClicked(0)" id="cell-0"></td>
-						<td onClick="handleCellClicked(1)" id="cell-1"></td>
+					<tr class="border-bottom border-black">
+						<td class="border-end border-black" onClick="handleCellClicked(0)" id="cell-0"></td>
+						<td class="border-end border-black" onClick="handleCellClicked(1)" id="cell-1"></td>
 						<td onClick="handleCellClicked(2)" id="cell-2"></td>
 					</tr>
-					<tr>
-						<td onClick="handleCellClicked(3)" id="cell-3"></td>
-						<td onClick="handleCellClicked(4)" id="cell-4"></td>
+					<tr class="border-bottom border-black">
+						<td class="border-end border-black" onClick="handleCellClicked(3)" id="cell-3"></td>
+						<td class="border-end border-black" onClick="handleCellClicked(4)" id="cell-4"></td>
 						<td onClick="handleCellClicked(5)" id="cell-5"></td>
 					</tr>
 					<tr>
-						<td onClick="handleCellClicked(6)" id="cell-6"></td>
-						<td onClick="handleCellClicked(7)" id="cell-7"></td>
+						<td class="border-end border-black" onClick="handleCellClicked(6)" id="cell-6"></td>
+						<td class="border-end border-black" onClick="handleCellClicked(7)" id="cell-7"></td>
 						<td onClick="handleCellClicked(8)" id="cell-8"></td>
 					</tr>
 				</tbody>
 			</table>
-			<c:if test="${match.turn == user.id}">
-				<h3>It is your turn!</h3>
-			</c:if>
+			<div class="text-center">
+				<c:if test="${match.turn == user.id}">
+					<h3 class="text-center">It is your turn!</h3>
+				</c:if>	
+			</div>
 		</div>
 	</div>
-	<div class="align-content-start" id="userId"><c:out value="${user.id}"/></div>
-	<div class="align-content-start" id="turn"><c:out value="${match.turn}"/></div>
+	<div class="align-content-start" id="userId" style="display:none"><c:out value="${user.id}"/></div>
+	<div class="align-content-start" id="turn" style="display:none"><c:out value="${match.turn}"/></div>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

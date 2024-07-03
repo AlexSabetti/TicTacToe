@@ -15,6 +15,7 @@ import com.codingdojo.tictactoe.classes.TicTacToeGameboard;
 import com.codingdojo.tictactoe.models.Game;
 import com.codingdojo.tictactoe.models.LoginUser;
 import com.codingdojo.tictactoe.models.Match;
+import com.codingdojo.tictactoe.models.RegisterUser;
 import com.codingdojo.tictactoe.models.User;
 import com.codingdojo.tictactoe.services.GameService;
 import com.codingdojo.tictactoe.services.MatchService;
@@ -45,19 +46,19 @@ public class HomeController {
 	
 	@GetMapping("/register")
 	public String indexReg(Model model) {
-		model.addAttribute("newUser", new User());
+		model.addAttribute("newRegister", new RegisterUser());
 		return "registrationpage.jsp";
 	}
 	
 	@PostMapping("/register")
-	public String register(@Valid @ModelAttribute("newUser") User newUser, BindingResult result, Model model) {
-		userService.register(newUser, result);
+	public String register(@Valid @ModelAttribute("newRegister") RegisterUser newRegister, BindingResult result, Model model) {
+		User user = userService.register(newRegister, result);
 		
 		if(result.hasErrors()) {
 			return "registrationpage.jsp";
 		}
 		
-		session.setAttribute("currentuser", newUser.getId());
+		session.setAttribute("currentuser", user.getId());
 		return "redirect:/games";
 	}
 	
@@ -111,6 +112,7 @@ public class HomeController {
 			model.addAttribute("game", game);
 			model.addAttribute("matches", matchService.allGameSpecificMatches(gameId));
 			model.addAttribute("user", userService.findUserById((long) session.getAttribute("currentuser")));
+			model.addAttribute("userList", userService.getLeaderBoard());
 			String whittled = game.getName().replace("-", "");
 			String specificGameHomePath = "home" + whittled + ".jsp";
 			return specificGameHomePath;
@@ -188,6 +190,7 @@ public class HomeController {
 			return "redirect:/";
 		}else {
 			Match match = matchService.findMatch(matchId);
+			if(match == null) return "redirect:/games/" + gameId + "/home";
 			if(match.getChallenger().getId() != (long) session.getAttribute("currentuser") && match.getChallengee().getId() != (long) session.getAttribute("currentuser")) {
 				return "redirect:/games/" + gameId + "/home";
 			}
@@ -198,6 +201,17 @@ public class HomeController {
 			model.addAttribute("user", currentUser);
 			model.addAttribute("match", match);
 			return "tictactoematch.jsp";
+		}
+	}
+	
+	@GetMapping("/profile/{userId}")
+	public String viewUser(@PathVariable("userId") Long userId, Model model) {
+		if(session.getAttribute("currentuser")== null) {
+			return "redirect:/";
+		}else {
+			User profileUser = userService.findUserById(userId);
+			model.addAttribute("user", profileUser);
+			return "userprofile.jsp";
 		}
 	}
 	
